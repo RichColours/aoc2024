@@ -113,7 +113,7 @@ open class ListOfRowsGrid<T>(
 
     override fun iterator(): Iterator<Grid.GridElem<T>> {
 
-        return (0..< this.size)
+        return (0..<this.size)
             .iterator()
             .transform {
                 val x = it % this.width
@@ -144,4 +144,62 @@ class ListOfMutableRowsGrid<T>(
     override fun setValueAt(x: Int, y: Int, v: T) {
         rowsList[y][x] = v
     }
+}
+
+/**
+ * Rotated 90 clockwise
+ * E.g. new 0,0 is taken from
+ */
+fun <T> Grid<T>.rotatedView(): Grid<T> = object : Grid<T> {
+
+    override val width: Int
+        get() = this@rotatedView.height
+
+    override val height: Int
+        get() = this@rotatedView.width
+
+    override val maxX: Int
+        get() = this@rotatedView.maxY
+
+    override val maxY: Int
+        get() = this@rotatedView.maxX
+
+    override val size: Int
+        get() = width * height
+
+    fun transform(x: Int, y: Int): Pair<Int, Int> {
+        val oldX = y
+        val oldY = this@rotatedView.maxY - x
+        return oldX to oldY
+    }
+
+    override fun valueAt(x: Int, y: Int): T {
+
+        val trans = transform(x, y)
+        return this@rotatedView.valueAt(trans.first, trans.second)
+    }
+
+    override fun elemAt(x: Int, y: Int): Grid.GridElem<T> {
+
+        val trans = transform(x, y)
+        return this@rotatedView.elemAt(trans.first, trans.second)
+    }
+
+    override fun printGrid() {
+
+        (0 ..  maxY).forEach { y ->
+            (0 ..  maxX).forEach { x ->
+                print(valueAt(x, y))
+            }
+            println()
+        }
+    }
+
+    override fun isEmpty(): Boolean = this.isEmpty()
+
+    override fun iterator(): Iterator<Grid.GridElem<T>> = this.iterator()
+
+    override fun contains(element: Grid.GridElem<T>): Boolean = this.contains(element)
+
+    override fun containsAll(elements: Collection<Grid.GridElem<T>>): Boolean = this.containsAll(elements)
 }
