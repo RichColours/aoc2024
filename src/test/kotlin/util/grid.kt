@@ -1,9 +1,12 @@
 package util
 
+import java.util.*
+import kotlin.collections.AbstractCollection
+
 interface Grid<T> : Collection<Grid.GridElem<T>> {
 
     enum class Position {
-        TL, T, TR, L, M, R, BL, B, BR, U
+        TL, T, TR, L, M, R, BL, B, BR
     }
 
     class GridElem<T>(
@@ -44,9 +47,19 @@ interface Grid<T> : Collection<Grid.GridElem<T>> {
             !isSame
         }
 
+        fun neighbour(p: Position): GridElem<T>? {
+            return neighboursInc().find { it.position == p }
+        }
+
         fun value(): T {
             return grid.valueAt(x, y)
         }
+
+        /**
+         * But should not need because neighbour return is grid-bounded.
+         * @see Grid.isInGrid
+         */
+        fun isInGrid(): Boolean = this.grid.isInGrid(this.x, this.y)
 
         override fun equals(other: Any?): Boolean {
             val otherGrid: GridElem<*>? = other as? GridElem<*>
@@ -55,7 +68,7 @@ interface Grid<T> : Collection<Grid.GridElem<T>> {
         }
 
         override fun hashCode(): Int {
-            return listOf(x, y).hashCode()
+            return Objects.hash(this.x, this.y)
         }
 
         companion object {
@@ -87,6 +100,12 @@ interface Grid<T> : Collection<Grid.GridElem<T>> {
     }
 
     fun printGrid()
+
+    /**
+     * But should not need because we try to only generate grid-bounded elements.
+     * @see Grid.GridElem.isInGrid
+     */
+    fun isInGrid(x: Int, y: Int): Boolean = x in (0..maxX) && y in (0..maxY)
 }
 
 interface MutableGrid<T> : Grid<T> {
@@ -187,8 +206,8 @@ fun <T> Grid<T>.rotatedView(): Grid<T> = object : Grid<T> {
 
     override fun printGrid() {
 
-        (0 ..  maxY).forEach { y ->
-            (0 ..  maxX).forEach { x ->
+        (0..maxY).forEach { y ->
+            (0..maxX).forEach { x ->
                 print(valueAt(x, y))
             }
             println()

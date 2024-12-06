@@ -1,13 +1,31 @@
 package util
 
 import java.math.BigInteger
-import java.nio.file.Files
-import java.nio.file.Path
-import java.util.stream.Stream
+import java.util.function.Predicate
+import kotlin.io.path.Path
+import kotlin.io.path.readLines
 
-fun filePathToLines(filePath: String): List<String> = Files.readAllLines(Path.of(filePath))
+fun filePathToLines(filePath: String): List<String> = Path(filePath).readLines()
 
-fun filePathToStream(filePath: String): Stream<String> = Files.lines(Path.of(filePath))
+fun List<String>.section(i: Int): List<String> =
+    this.split { it.startsWith("===") }[i]
+
+fun <E> List<E>.split(p: Predicate<E>): List<List<E>> {
+
+    // list(list, list, list)
+    return this.fold(listOf(emptyList())) { acc, v ->
+
+        if (p.test(v)) {
+            acc.plusElement(emptyList())
+        } else {
+            val allBut = acc.dropLast(1)
+            val end = acc.last()
+            val newEnd = end.plus(v)
+            val newAcc = allBut.plusElement(newEnd)
+            newAcc
+        }
+    }
+}
 
 fun <T> timed(f: () -> T): T {
 
@@ -95,3 +113,8 @@ fun <T> Iterator<T>.combineWith(it: Iterator<T>): Iterator<T> {
         }
     }
 }
+
+/**
+ * Middle element of an odd-element list.
+ */
+private fun <E> middleOf(xs: List<E>): E = xs[((xs.size - 1) / 2)]
