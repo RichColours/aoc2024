@@ -4,10 +4,7 @@ import assertk.assertThat
 import assertk.assertions.isEqualTo
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
-import util.Grid
-import util.filePathToLines
-import util.section
-import util.toGrid
+import util.*
 
 class Day06 {
 
@@ -76,25 +73,34 @@ class Day06 {
     /*********************************************************************************/
 
 
+    private fun gridPlusObstacleFormsLoop(
+        gridSource: GridDataSource<Char>,
+        obsX: Int,
+        obsY: Int,
+        startX: Int,
+        startY: Int
+    ): Boolean {
 
-    private fun <T> gridPlusObstacleFormsLoop(initGridData: List<String>, obsX: Int, obsY: Int): Boolean {
+        val newGrid = gridSource.overrideSingleValue(obsX, obsY, '#').newGrid()
 
-        val newGrid = initGridData.mapIndexed { index, v ->
-            if (index == obsY) {
-                val s = v.mapIndexed { index, c ->
-                    if (index == obsX) {
-                        '#'
-                    } else {
-                        c
-                    }
-                }
-                String(s.toCharArray())
-            } else {
-                v
-            }
-        }.toGrid()
+        // start -> obs
+        assert((obsX != startX).xor(obsY != startY))
 
-        val init = newGrid.find { it.value() == '^' }!! to Grid.Position.T
+        val dir = if (obsX == startX) {
+            if (obsY > startY)
+                Grid.Position.B
+            else
+                Grid.Position.T
+        } else if (obsY == startY) {
+            if (obsX > startX)
+                Grid.Position.R
+            else
+                Grid.Position.L
+
+        } else
+            throw Exception("Logic error")
+
+        val init = newGrid.elemAt(startX, startY) to dir
 
         val possibleLoop = generateSequence(init) { (pos, dir) ->
 
@@ -145,7 +151,7 @@ class Day06 {
         }
     }
 
-    data class CoordAndHeading constructor(
+    data class CoordAndHeading(
         val x: Int,
         val y: Int,
         val dir: Grid.Position
@@ -162,7 +168,9 @@ class Day06 {
 
         val lines = filePathToLines(inputFile).section(testSection)
 
-        val grid = lines.toGrid()
+        val gridSource = ListOfStringsDataSource(lines)
+
+        val grid = gridSource.newGrid()
 
         val init = grid.find { it.value() == '^' }!! to Grid.Position.T
 
@@ -194,10 +202,25 @@ class Day06 {
 
         // try placing a block on each path (but not the first two) and then walk it, see if a loop is formed
 
-        val sum = path.drop(1).count {
+        var counter = 0
 
-            gridPlusObstacleFormsLoop<Char>(lines, it.x, it.y)
+        path.forEachIndexed { index, it ->
+
+            if (index != 0) {
+
+                val prev = path[index - 1]
+
+                val loop = timed {
+                    gridPlusObstacleFormsLoop(gridSource, it.x, it.y, prev.x, prev.y)
+                }
+                    .also { println("Took ${it.second}") }.first
+
+                if (loop) counter++
+            }
+
         }
+
+        val sum = counter
 
         assertThat(sum).isEqualTo(expected)
     }

@@ -27,7 +27,7 @@ fun <E> List<E>.split(p: Predicate<E>): List<List<E>> {
     }
 }
 
-fun <T> timed(f: () -> T): T {
+fun <T> timed(f: () -> T): Pair<T, Long> {
 
     val startAt = System.currentTimeMillis()
 
@@ -35,9 +35,9 @@ fun <T> timed(f: () -> T): T {
 
     val endAt = System.currentTimeMillis()
 
-    println("Timed ${(endAt - startAt) / 1000}")
+    val msDiff = endAt - startAt
 
-    return v
+    return v to msDiff
 }
 
 fun List<LongRange>.containsInRanges(v: Long): Boolean {
