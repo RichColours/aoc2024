@@ -9,9 +9,11 @@ import org.junit.jupiter.params.provider.CsvSource
 import util.filePathToLines
 import util.isEven
 import util.isOdd
-import java.math.BigDecimal
 import java.math.BigInteger
+import java.util.concurrent.Callable
+import java.util.concurrent.ForkJoinPool
 import java.util.stream.Collectors
+import java.util.stream.Stream
 
 class Day07 {
 
@@ -113,7 +115,7 @@ class Day07 {
                 // Multiply
                 accumulator *= numbers[i + 1]
             } else if (thisColumn == 2)
-                // ||
+            // ||
                 accumulator = accumulator merge numbers[i + 1]
             else
                 throw Exception("Unhandled")
@@ -127,11 +129,12 @@ class Day07 {
     @ParameterizedTest
     @CsvSource(
         value = [
-            "src/test/resources/days/07/samp1.txt, 190|3267|292|156|7290|192, 11387",
-            "src/test/resources/days/07/prod1.txt, -1, 328790210468594"
+            //"src/test/resources/days/07/samp1.txt, false, 190|3267|292|156|7290|192, 11387",
+            "src/test/resources/days/07/prod1.txt, true, -1, 328790210468594",
+            //"src/test/resources/days/07/prod1.txt, false, -1, 328790210468594"
         ]
     )
-    fun question2(inputFile: String, expectedSolvedString: String, expected: Long) {
+    fun question2(inputFile: String, parallelMode: Boolean, expectedSolvedString: String, expected: Long) {
 
         val lines = filePathToLines(inputFile)
 
@@ -156,11 +159,33 @@ class Day07 {
                 }
         }
 
-        val solved = eqs.parallelStream()
-            .map { solveEquation(it) }
-            .filter { it != null }
-            .map { it!! }
-            .collect(Collectors.toList())
+        println("Starting parallel=$parallelMode")
+
+        val parCallable = Callable<List<Long>> {
+            eqs.parallelStream()
+                .flatMap {
+                    val solved = solveEquation(it)
+                    if (solved == null) Stream.empty() else Stream.of(solved)
+                }
+                .collect(Collectors.toList())
+        }
+
+        val solved = if (parallelMode) {
+            val fjp = ForkJoinPool(4)
+            val done: List<Long> = fjp.submit(parCallable).get()
+            fjp.shutdown()
+            done
+        } else {
+            val seriesDone: List<Long> = eqs.stream()
+                .flatMap {
+                    val solved = solveEquation(it)
+                    if (solved == null) Stream.empty() else Stream.of(solved)
+                }
+                .collect(Collectors.toList())
+            seriesDone
+        }
+
+        println("Done")
 
         val sum = solved.sum()
 
