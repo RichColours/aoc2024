@@ -213,7 +213,9 @@ class Day06 {
                 val loop = timed {
                     gridPlusObstacleFormsLoop(gridSource, it.x, it.y, prev.x, prev.y)
                 }
-                    .also { println("Took ${it.second}") }.first
+                    .also {
+                        //println("Took ${it.second}")
+                    }.first
 
                 if (loop) counter++
             }
