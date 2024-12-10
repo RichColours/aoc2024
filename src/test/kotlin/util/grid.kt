@@ -91,9 +91,9 @@ interface Grid<T> : Collection<GridElem<T>> {
         fun isInGrid(): Boolean = this.grid.isInGrid(this.x, this.y)
 
         override fun equals(other: Any?): Boolean {
-            val otherGrid: GridElem<*>? = other as? GridElem<*>
+            val otherElem: GridElem<*>? = other as? GridElem<*>
 
-            return otherGrid != null && this.x == otherGrid.x && this.y == otherGrid.y
+            return otherElem != null && this.x == otherElem.x && this.y == otherElem.y
         }
 
         override fun hashCode(): Int {
