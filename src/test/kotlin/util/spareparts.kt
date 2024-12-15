@@ -119,3 +119,22 @@ fun <T> Iterator<T>.combineWith(it: Iterator<T>): Iterator<T> {
  * Middle element of an odd-element list.
  */
 private fun <E> middleOf(xs: List<E>): E = xs[((xs.size - 1) / 2)]
+
+/**
+ * Find and return with iterator (for removal) by predicate.
+ */
+fun <T> MutableList<T>.getWithIteratorIf(predicate: Predicate<T>): Pair<T, MutableIterator<T>>? {
+
+    val it = this.iterator()
+
+    while (it.hasNext()) {
+
+        val el = it.next()
+
+        if (predicate.test(el)) {
+            return el to it
+        }
+    }
+
+    return null
+}
