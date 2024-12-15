@@ -34,6 +34,26 @@ open class ListOfStringsDataSource(
         get() = listOfRows.size
 }
 
+open class FlatListDataSource<T>(
+    private val flatList: List<T>,
+    private val inputWidth: Int
+) : GridDataSource<T> {
+
+    init {
+        assert(flatList.size % inputWidth == 0)
+    }
+
+    override fun row(y: Int): List<T> = flatList.subList(y * inputWidth, (y * inputWidth) + inputWidth)
+
+    override fun valueAt(x: Int, y: Int): T = flatList[(y * inputWidth) + x]
+
+    override val width: Int
+        get() = inputWidth
+
+    override val height: Int
+        get() = flatList.size / width
+}
+
 interface Grid<T> : Collection<GridElem<T>> {
 
     enum class Position {
@@ -183,6 +203,8 @@ open class BaseGrid<T>(
 }
 
 fun List<String>.toGrid(): Grid<Char> = BaseGrid(ListOfStringsDataSource(this))
+
+fun <T> List<T>.toGrid(inputWidth: Int): Grid<T> = BaseGrid(FlatListDataSource(this, inputWidth))
 
 open class BaseProxyingGrid<T>(
     private val proxied: Grid<T>
