@@ -4,6 +4,7 @@ import assertk.assertThat
 import assertk.assertions.containsExactlyInAnyOrder
 import assertk.assertions.isEqualTo
 import djitkstraComputeToCompletion
+import djitkstraCountOfDiscretePaths
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
 import util.Grid
@@ -64,5 +65,48 @@ class Day10 {
     }
 
     /*********************************************************************************/
+
+    @ParameterizedTest
+    @CsvSource(
+        value = [
+            "src/test/resources/days/10/samp2a.txt, 3, 3",
+            "src/test/resources/days/10/samp2b.txt, 13, 13",
+            "src/test/resources/days/10/samp2c.txt, 227, 227",
+            "src/test/resources/days/10/samp1d.txt, 20|24|10|4|1|4|5|8|5, 81",
+            "src/test/resources/days/10/prod1.txt, -1, 1017",
+        ]
+    )
+    fun question2(inputFile: String, expectedScoresString: String, expected: Int) {
+
+        val expectedScores = expectedScoresString.split('|').map { it.toInt() }
+
+        val lines = filePathToLines(inputFile)
+
+        val allTheInts = lines.flatMap { it.map { if (it == '.') -1 else it.digitToInt() } }
+
+        val grid = allTheInts.toGrid(lines[0].length)
+
+        val trailHeads = grid.filter { it.value() == 0 }
+
+        val selectFunction = fun(i: Grid.GridElem<Int>): List<Grid.GridElem<Int>> {
+
+            return i.neighboursExc().filter { neighb ->
+                neighb.value() == i.value() + 1 &&
+                        (neighb.position in listOf(Grid.Position.T, Grid.Position.R, Grid.Position.B, Grid.Position.L))
+            }
+        }
+
+        val trailHeadSums = trailHeads
+            .map {
+                djitkstraCountOfDiscretePaths(it, selectFunction, 0) { it.value() == 9 }
+            }
+
+        val sum: Int = trailHeadSums.sum()
+
+        if (expectedScores[0] != -1)
+            assertThat(trailHeadSums).containsExactlyInAnyOrder(*expectedScores.toTypedArray())
+
+        assertThat(sum).isEqualTo(expected)
+    }
 
 }
