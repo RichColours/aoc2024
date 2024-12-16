@@ -4,6 +4,7 @@ import java.math.BigInteger
 import java.util.function.Predicate
 import kotlin.io.path.Path
 import kotlin.io.path.readLines
+import kotlin.math.pow
 
 fun filePathToLines(filePath: String): List<String> = Path(filePath).readLines()
 
@@ -137,4 +138,30 @@ fun <T> MutableList<T>.getWithIteratorIf(predicate: Predicate<T>): Pair<T, Mutab
     }
 
     return null
+}
+
+fun Int.intPower(p: Int): Int = this.toDouble().pow(p.toDouble()).toInt()
+
+fun Long.countDigits(): Int {
+
+    var v = this
+    var count = 0
+
+    while (v > 0) {
+        count += 1
+        v /= 10
+    }
+
+    return count
+}
+
+fun Long.getLeftAndRightHalfDigits(): Pair<Long, Long> {
+
+    val digits = this.countDigits()
+    val halfDigits = digits / 2
+
+    val left = this / 10.intPower(halfDigits)
+    val right = this % 10.intPower(halfDigits)
+
+    return left to right
 }
