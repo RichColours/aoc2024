@@ -96,6 +96,9 @@ interface Grid<T> : Collection<GridElem<T>> {
             !isSame
         }
 
+        fun neighboursHorizontalAndVertical() =
+            this.neighboursExc().filter { it.position in listOf(Position.T, Position.R, Position.B, Position.L) }
+
         fun neighbour(p: Position): GridElem<T>? {
             return neighboursInc().find { it.position == p }
         }
@@ -118,6 +121,10 @@ interface Grid<T> : Collection<GridElem<T>> {
 
         override fun hashCode(): Int {
             return Objects.hash(this.x, this.y)
+        }
+
+        override fun toString(): String {
+            return "([$x, $y] = ${value()})"
         }
 
         companion object {
