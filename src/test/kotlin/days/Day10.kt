@@ -3,8 +3,8 @@ package days
 import assertk.assertThat
 import assertk.assertions.containsExactlyInAnyOrder
 import assertk.assertions.isEqualTo
-import djitkstraComputeToCompletion
-import djitkstraCountOfDiscretePaths
+import djikstraComputeToCompletion
+import djikstraCountOfDiscretePaths
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
 import util.Grid
@@ -45,7 +45,7 @@ class Day10 {
 
         val spreads = trailHeads
             .map {
-                djitkstraComputeToCompletion(listOf(it), selectFunction)
+                djikstraComputeToCompletion(listOf(it), selectFunction)
             }
 
         val endPoints = spreads.map {
@@ -98,7 +98,7 @@ class Day10 {
 
         val trailHeadSums = trailHeads
             .map {
-                djitkstraCountOfDiscretePaths(it, selectFunction, 0) { it.value() == 9 }
+                djikstraCountOfDiscretePaths(it, selectFunction, 0) { it.value() == 9 }
             }
 
         val sum: Int = trailHeadSums.sum()

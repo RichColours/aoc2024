@@ -5,7 +5,7 @@ fun <T> djikstraComputeMoveLayer(start: List<T>, select: java.util.function.Func
     return start.flatMap { select.apply(it) }.distinct()
 }
 
-fun <T> djitkstraComputeToCompletion(
+fun <T> djikstraComputeToCompletion(
     start: List<T>,
     select: java.util.function.Function<T, List<T>>
 ): List<List<T>> {
@@ -43,7 +43,7 @@ fun <T> djikstraComputeRegionToCompletion(
     return visited.toList()
 }
 
-fun <T> djitkstraCountOfDiscretePaths(
+fun <T> djikstraCountOfDiscretePaths(
     start: T,
     select: java.util.function.Function<T, List<T>>,
     count: Int,
@@ -57,7 +57,7 @@ fun <T> djitkstraCountOfDiscretePaths(
         val options = djikstraComputeMoveLayer(listOf(start), select)
 
         val sum = options.map {
-            djitkstraCountOfDiscretePaths(it, select, count, isDestination)
+            djikstraCountOfDiscretePaths(it, select, count, isDestination)
         }.sum()
 
         return sum
