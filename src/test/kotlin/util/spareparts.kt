@@ -165,3 +165,45 @@ fun Long.getLeftAndRightHalfDigits(): Pair<Long, Long> {
 
     return left to right
 }
+
+fun List<Int>.deriveRanges(): List<IntRange> {
+
+    val outputLists = mutableListOf<IntRange>()
+
+    var first: Int? = null
+    var second: Int? = null
+
+    this.forEach {
+
+        if (first == null) {
+            first = it
+            second = null
+        } else {
+            if (second == null) {
+                if (it == first!! + 1) {
+                    second = it
+                } else {
+                    outputLists += IntRange(first!!, first!!)
+                    first = it
+                    second = null
+                }
+            } else {
+                if (it == second!! + 1) {
+                    second = it
+                } else {
+                    outputLists += IntRange(first!!, second!!)
+                    first = it
+                    second = null
+                }
+            }
+        }
+    }
+
+    if (first != null && second == null)
+        outputLists += IntRange(first!!, first!!)
+
+    if (first != null && second != null)
+        outputLists += IntRange(first!!, second!!)
+
+    return outputLists
+}
